@@ -25,14 +25,14 @@
 #define PIN14    (1UL << 14)
 #define PIN15    (1UL << 15)
 
-#define LED1_PIN    PIN11
-#define LED2_PIN    PIN12
-#define LED3_PIN    PIN0
-#define LED4_PIN    PIN1
-#define LED5_PIN    PIN2
-#define LED6_PIN    PIN3
-#define LED9_PIN    PIN15
-#define LED10_PIN    PIN6
-#define LED11_PIN    PIN12
+#define LED1_PIN    PIN11     //LED16
+#define LED2_PIN    PIN12     //LED15
+#define LED3_PIN    PIN0      //LED14
+#define LED4_PIN    PIN1      //LED13
+#define LED5_PIN    PIN2      //LED12
+#define LED6_PIN    PIN3      //LED11
+#define LED9_PIN    PIN15     //LED8
+#define LED10_PIN    PIN6     //LED7
+#define LED11_PIN    PIN12    //LED6
 
 
