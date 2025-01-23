@@ -2,7 +2,7 @@
 
 //Include the STM32F4xx header files
 #include "stm32f4xx.h"       //Include the STM32F4xx header file(Standard peripheral library)
-#include "stm32f411xe.h"     //Include the STM32F411xx header file(Standard peripheral library)
+#include "stm32f405xx.h"     //Include the STM32F411xx header file(Standard peripheral library)
 
 #define GPIOAEN          (1UL << 0)    //0b 0000 0000 0000 0000 0000 0000 0000 0001
 #define GPIOBEN          (1UL << 1)    //0b 0000 0000 0000 0000 0000 0000 0000 0010
@@ -35,4 +35,36 @@
 #define LED10_PIN    PIN6     //LED7
 #define LED11_PIN    PIN12    //LED6
 
+
+void choose_led(int led){
+  switch(led){
+    case 1:
+      GPIOA ->ODR |= LED1_PIN;
+      break;
+    case 2:
+      GPIOA ->ODR |= LED2_PIN;
+      break;
+    case 3:
+      GPIOC ->ODR |= LED3_PIN;
+      break;
+    case 4:
+      GPIOC ->ODR |= LED4_PIN;
+      break;
+    case 5:
+      GPIOC ->ODR |= LED5_PIN;
+      break;
+    case 6:
+      GPIOC ->ODR |= LED6_PIN;
+      break;
+    case 9:
+      GPIOB ->ODR |= LED9_PIN;
+      break;
+    case 10:
+      GPIOC ->ODR |= LED10_PIN;
+      break;
+    case 11:
+      GPIOC ->ODR |= LED11_PIN;
+      break;
+  }
+}
 
