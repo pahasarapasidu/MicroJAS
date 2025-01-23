@@ -3,7 +3,7 @@
 //Include the STM32F4xx header files
 #include "stm32f4xx.h"       //Include the STM32F4xx header file(Standard peripheral library)
 #include "stm32f405xx.h"     //Include the STM32F411xx header file(Standard peripheral library)
-#include "stm32f405xx.h"    //Include the STM32F411xx header file(Standard peripheral library)
+
 
 #define GPIOAEN          (1UL << 0)    //0b 0000 0000 0000 0000 0000 0000 0000 0001
 #define GPIOBEN          (1UL << 1)    //0b 0000 0000 0000 0000 0000 0000 0000 0010
@@ -37,9 +37,15 @@
 #define LED11_PIN    PIN12    //LED6
 
 
-void choose_led(int led){
+void turn_on_led(int led){
   switch(led){
     case 1:
+      /*Enable clock for Port A*/
+      RCC ->AHB1ENR |= GPIOAEN;
+      /*Set the MODER to general purpose output mode*/
+      GPIOA ->MODER |= (1UL << 22);
+      GPIOA ->MODER &= ~(1UL <<23);
+      /*Set the Pin HIGH*/
       GPIOA ->ODR |= LED1_PIN;
       break;
     case 2:
