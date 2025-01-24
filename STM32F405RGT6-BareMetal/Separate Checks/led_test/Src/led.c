@@ -1,0 +1,167 @@
+/*Check the LEDs of Micromouse*/
+
+//Include the STM32F4xx header files
+
+#include "stm32f4xx.h"       //Include the STM32F4xx header file(Standard peripheral library)
+#include "stm32f405xx.h"     //Include the STM32F411xx header file(Standard peripheral library)
+
+
+#define GPIOAEN          (1UL << 0)    //0b 0000 0000 0000 0000 0000 0000 0000 0001
+#define GPIOBEN          (1UL << 1)    //0b 0000 0000 0000 0000 0000 0000 0000 0010
+#define GPIOCEN          (1UL << 2)    //0b 0000 0000 0000 0000 0000 0000 0000 0100
+
+#define PIN0     (1UL << 0)
+#define PIN1     (1UL << 1)
+#define PIN2     (1UL << 2)
+#define PIN3     (1UL << 3)
+#define PIN4     (1UL << 4)
+#define PIN5     (1UL << 5)
+#define PIN6     (1UL << 6)
+#define PIN7     (1UL << 7)
+#define PIN8     (1UL << 8)
+#define PIN9     (1UL << 9)
+#define PIN10    (1UL << 10)
+#define PIN11    (1UL << 11)
+#define PIN12    (1UL << 12)
+#define PIN13    (1UL << 13)
+#define PIN14    (1UL << 14)
+#define PIN15    (1UL << 15)
+
+#define LED1_PIN    PIN11     //LED16
+#define LED2_PIN    PIN12     //LED15
+#define LED3_PIN    PIN0      //LED14
+#define LED4_PIN    PIN1      //LED13
+#define LED5_PIN    PIN2      //LED12
+#define LED6_PIN    PIN3      //LED11
+#define LED9_PIN    PIN15     //LED8
+#define LED10_PIN    PIN6     //LED7
+#define LED11_PIN    PIN12    //LED6
+
+
+void turn_on_led(int led){
+  switch(led){
+    case 1:
+      /*Enable clock for Port A*/
+      RCC ->AHB1ENR |= GPIOAEN;
+      /*Set the MODER to general purpose output mode*/
+      GPIOA ->MODER |= (1UL << 22);
+      GPIOA ->MODER &= ~(1UL << 23);
+      /*Set the Pin HIGH*/
+      GPIOA ->ODR |= LED1_PIN;
+      break;
+    case 2:
+      /*Enable clock for Port A*/
+      RCC ->AHB1ENR |= GPIOAEN;
+      /*Set the MODER to general purpose output mode*/
+      GPIOA ->MODER |= (1UL << 24);
+      GPIOA ->MODER &= ~(1UL << 25);
+      /*Set the Pin HIGH*/
+      GPIOA ->ODR |= LED2_PIN;
+      break;
+    case 3:
+      /*Enable clock for Port C*/
+      RCC ->AHB1ENR |= GPIOCEN;
+      /*Set the MODER to general purpose output mode*/
+      GPIOC ->MODER |= (1UL << 0);
+      GPIOC ->MODER &= ~(1UL << 1);
+      /*Set the Pin HIGH*/
+      GPIOC ->ODR |= LED3_PIN;
+      break;
+    case 4:
+      /*Enable clock for Port C*/
+      RCC ->AHB1ENR |= GPIOCEN;
+      /*Set the MODER to general purpose output mode*/
+      GPIOC ->MODER |= (1UL << 2);
+      GPIOC ->MODER &= ~(1UL << 3);
+      /*Set the Pin HIGH*/
+      GPIOC ->ODR |= LED4_PIN;
+      break;
+    case 5:
+      /*Enable clock for Port C*/
+      RCC ->AHB1ENR |= GPIOCEN;
+      /*Set the MODER to general purpose output mode*/
+      GPIOC ->MODER |= (1UL << 4);
+      GPIOC ->MODER &= ~(1UL << 5);
+      /*Set the Pin HIGH*/
+      GPIOC ->ODR |= LED5_PIN;
+      break;
+    case 6:
+      /*Enable clock for Port C*/
+      RCC ->AHB1ENR |= GPIOCEN;
+      /*Set the MODER to general purpose output mode*/
+      GPIOC ->MODER |= (1UL << 6);
+      GPIOC ->MODER &= ~(1UL << 7);
+      /*Set the Pin HIGH*/
+      GPIOC ->ODR |= LED6_PIN;
+      break;
+    case 9:
+      /*Enable clock for Port B*/
+      RCC ->AHB1ENR |= GPIOBEN;
+      /*Set the MODER to general purpose output mode*/
+      GPIOB ->MODER |= (1UL << 30);
+      GPIOB ->MODER &= ~(1UL << 31);
+      /*Set the Pin HIGH*/
+      GPIOB ->ODR |= LED9_PIN;
+      break;
+    case 10:
+      /*Enable clock for Port C*/
+      RCC ->AHB1ENR |= GPIOCEN;
+      /*Set the MODER to general purpose output mode*/
+      GPIOC ->MODER |= (1UL << 12);
+      GPIOC ->MODER &= ~(1UL << 13);
+      /*Set the Pin HIGH*/
+      GPIOC ->ODR |= LED10_PIN;
+      break;
+    case 11:
+      /*Enable clock for Port C*/
+      RCC ->AHB1ENR |= GPIOCEN;
+      /*Set the MODER to general purpose output mode*/
+      GPIOC ->MODER |= (1UL << 24);
+      GPIOC ->MODER &= ~(1UL << 25);
+      /*Set the Pin HIGH*/
+      GPIOC ->ODR |= LED11_PIN;
+      break;
+  }
+}
+
+void turn_off_led(int led){
+  switch(led){
+    case 1:
+      /*Set the Pin LOW*/
+      GPIOA ->ODR &= ~LED1_PIN;
+      break;
+    case 2:
+      /*Set the Pin LOW*/
+      GPIOA ->ODR &= ~LED2_PIN;
+      break;
+    case 3:
+      /*Set the Pin LOW*/
+      GPIOC ->ODR &= ~LED3_PIN;
+      break;
+    case 4:
+      /*Set the Pin LOW*/
+      GPIOC ->ODR &= ~LED4_PIN;
+      break;
+    case 5:
+      /*Set the Pin LOW*/
+      GPIOC ->ODR &= ~LED5_PIN;
+      break;
+    case 6:
+      /*Set the Pin LOW*/
+      GPIOC ->ODR &= ~LED6_PIN;
+      break;
+    case 9:
+      /*Set the Pin LOW*/
+      GPIOB ->ODR &= ~LED9_PIN;
+      break;
+    case 10:
+      /*Set the Pin LOW*/
+      GPIOC ->ODR &= ~LED10_PIN;
+      break;
+    case 11:
+      /*Set the Pin LOW*/
+      GPIOC ->ODR &= ~LED11_PIN;
+      break;
+  }
+}
+
