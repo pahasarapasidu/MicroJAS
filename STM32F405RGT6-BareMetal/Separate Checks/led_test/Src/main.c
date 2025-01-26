@@ -46,8 +46,6 @@ int main(void)
         turn_off_led(3);
         for(volatile int i = 0; i < 100000; i++);
 
-
-
     }
     
 }
