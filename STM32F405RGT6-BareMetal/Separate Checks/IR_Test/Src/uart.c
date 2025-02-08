@@ -84,7 +84,7 @@ char uart3_read(void)
   return USART3 ->DR;
 }
 
-void uart3_write(int ch)
+int uart3_write(int ch)
 {
     /*****Write Data to transmit*****/
 
