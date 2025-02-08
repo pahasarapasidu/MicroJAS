@@ -10,16 +10,33 @@
 
 void pc10_af_uart_tx_mode(void){
     /*Enable GPIOC clock*/
+    RCC->AHB1ENR |= GPIOCEN;
     /*Set PC10 to alternate function mode*/
-    /*Set PC10 alternate function type to UART_TX (USART3)*/
+    GPIOC->MODER |= (1UL << 21);
+    GPIOC->MODER &= ~(1UL << 20);
+
+    /*Set PC10 alternate function type to UART_TX (USART3 AF7)*/
+    GPIOC->AFR[1] |= (1UL << 8);
+    GPIOC->AFR[1] |= (1UL << 9);
+    GPIOC->AFR[1] |= (1UL << 10);
+    GPIOC->AFR[1] &= ~(1UL << 11);
 
 
 }
 
 void pc11_af_uart_rx_mode(void){
     /*Enable GPIOC clock*/
+    RCC->AHB1ENR |= GPIOCEN;
+
     /*Set PC11 to alternate function mode*/
-    /*Set PC11 alternate function type to UART_RX (USART3)*/
+    GPIOC->MODER |= (1UL << 23);
+    GPIOC->MODER &= ~(1UL << 22);
+
+    /*Set PC11 alternate function type to UART_RX (USART3 AF7)*/
+    GPIOC->AFR[1] |= (1UL << 12);
+    GPIOC->AFR[1] |= (1UL << 13);
+    GPIOC->AFR[1] |= (1UL << 14);
+    GPIOC->AFR[1] &= ~(1UL << 15);
 }
 
 static void uart_set_baudrate(USART_TypeDef *USARTx, uint32_t PeriphClk, uint32_t BaudRate)
