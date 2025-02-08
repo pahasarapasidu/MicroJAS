@@ -38,7 +38,7 @@
 #define CR2_ADON  (1UL << 0)
 #define CR2_SWSTART (1UL << 30)
 #define CR2_CONT   (1UL << 1)
-#define CSR_EOC    (514UL << 1)
+#define CSR_EOC    (1UL << 1) | (1UL << 9)
 
 
 void ir_led_turn_on(int ir_led){
@@ -112,7 +112,7 @@ void ir_reciever_init(void){
   RCC ->APB2ENR |= (3UL << 8);
 
   /*Select multi ADC mode as regular simultaneous mode*/
-  ADC ->CCR |= (6UL << 0);
+  //ADC ->CCR|= (6UL << 0);
 
   /*Conversion sequence start ADC1*/
   ADC1 ->SQR3 = ADC_CH8 | (ADC_CH9 << 5);
@@ -146,7 +146,7 @@ uint32_t ir_sensor_value_read(void){
   while(!(ADC ->CSR & CSR_EOC)){}
 
   /*Return the value of the conversion*/
-  uint32_t value = ADC -> CDR; 
+  uint32_t value = ADC -> CDR;
   return value;
 }
 

@@ -8,6 +8,7 @@
 
 void pc10_af_uart_tx_mode(void);
 void pc11_af_uart_rx_mode(void);
+void uart3_init(void);
 void uart3_write(int ch);
 int __io_putchar(int ch);
 

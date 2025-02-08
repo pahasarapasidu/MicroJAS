@@ -61,7 +61,7 @@ void pc11_af_uart_rx_mode(void){
     GPIOC->AFR[1] &= ~(1UL << 15);
 }
 
-void uart_init(void){
+void uart3_init(void){
     /*Enable USART3 clock*/
     RCC->APB1ENR |= USART3EN;
 
@@ -69,7 +69,7 @@ void uart_init(void){
     uart_set_baudrate(USART3, APB1_CLK, UART_BAUDRATE);
 
     /*Set transfer Direction*/
-    USART2 ->CR1 = (CR1_TE | CR1_RE);
+    USART3 ->CR1 = (CR1_TE | CR1_RE);
 
     /*Enable USART3*/
     USART3->CR1 |= CR1_UE;

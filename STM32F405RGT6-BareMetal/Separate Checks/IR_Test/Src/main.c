@@ -12,9 +12,18 @@ uint32_t sensor_value;
 int main(void){
     pc10_af_uart_tx_mode();
     pc11_af_uart_rx_mode();
+    ir_led_turn_on(1);
+    ir_led_turn_on(2);
+    ir_led_turn_on(3);
+    ir_reciever_init();
+    uart3_init();
+
+    ir_start_conversion();
 
     while (1)
     {
+        sensor_value = ir_sensor_value_read();
+        printf("Sensor Value: %d\n", sensor_value);
         
     }
     
