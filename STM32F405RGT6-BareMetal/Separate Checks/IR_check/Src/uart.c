@@ -3,14 +3,27 @@
 #define GPIOCEN     (1UL << 2)
 #define USART3EN    (1UL << 18)
 
+#define CR1_TE      (1UL << 3)
+#define CR1_RE      (1UL << 2)
+
+#define CR1_UE      (1UL << 13)
+
 #define SYS_FREQ    16000000U
 #define APB1_CLK    SYS_FREQ
 
 #define UART_BAUDRATE 115200U
 
+
+
+static void uart_set_baudrate(USART_TypeDef *USARTx, uint32_t PeriphClk, uint32_t Baudrate);
+static uint16_t compute_uart_bd(uint32_t PeriphClk, uint32_t Baudrate);
+
+
 void pc10_af_uart_tx_mode(void){
+
     /*Enable GPIOC clock*/
     RCC->AHB1ENR |= GPIOCEN;
+
     /*Set PC10 to alternate function mode*/
     GPIOC->MODER |= (1UL << 21);
     GPIOC->MODER &= ~(1UL << 20);
@@ -37,6 +50,20 @@ void pc11_af_uart_rx_mode(void){
     GPIOC->AFR[1] |= (1UL << 13);
     GPIOC->AFR[1] |= (1UL << 14);
     GPIOC->AFR[1] &= ~(1UL << 15);
+}
+
+void uart_init(void){
+    /*Enable USART3 clock*/
+    RCC->APB1ENR |= USART3EN;
+
+    /*Set Baudrate*/
+    uart_set_baudrate(USART3, APB1_CLK, UART_BAUDRATE);
+
+    /*Set transfer Direction*/
+    USART2 ->CR1 = (CR1_TE | CR1_RE);
+
+    /*Enable USART3*/
+    USART3->CR1 |= CR1_UE;
 }
 
 static void uart_set_baudrate(USART_TypeDef *USARTx, uint32_t PeriphClk, uint32_t BaudRate)
