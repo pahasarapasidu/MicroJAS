@@ -12,6 +12,11 @@ uint32_t sensor_value;
 int main(void){
     pc10_af_uart_tx_mode();
     pc11_af_uart_rx_mode();
+
+    while (1)
+    {
+        
+    }
     
 
 
