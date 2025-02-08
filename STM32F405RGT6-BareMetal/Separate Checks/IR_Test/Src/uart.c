@@ -20,7 +20,7 @@
 static void uart_set_baudrate(USART_TypeDef *USARTx, uint32_t PeriphClk, uint32_t Baudrate);
 static uint16_t compute_uart_bd(uint32_t PeriphClk, uint32_t Baudrate);
 
-char uart3_read(void);
+void uart3_write(int ch);
 
 int __io_putchar(int ch)
 {
@@ -84,7 +84,7 @@ char uart3_read(void)
   return USART3 ->DR;
 }
 
-int uart3_write(int ch)
+void uart3_write(int ch)
 {
     /*****Write Data to transmit*****/
 
