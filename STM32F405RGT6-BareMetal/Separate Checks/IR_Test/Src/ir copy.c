@@ -41,7 +41,7 @@
 #define SR_EOC    (1UL << 1)
 
 
-void ir_led_turn_on(int ir_led){
+void ir_led_turn_onc(int ir_led){
   switch(ir_led){
     case 1:
       /*Enable clock for Port C*/
@@ -73,7 +73,7 @@ void ir_led_turn_on(int ir_led){
   }
 }
 
-void ir_led_turn_off(int led){
+void ir_led_turn_offc(int led){
   switch(led){
     case 1:
       /*Set the Pin LOW*/
@@ -90,12 +90,12 @@ void ir_led_turn_off(int led){
   }
 }
 
-void ir_reciever_init(void){
+void ir_reciever_initc(void){
   /*Enable clock access for port A*/
   RCC ->AHB1ENR |= GPIOAEN;
 
   /*Set the mode register A to analog mode, pin 4 and 5*/
-  GPIOA ->MODER |= (3UL << 8);
+  GPIOA ->MODER |= (3UL << 10);
 
   /***Configure ADC module ***/
 
@@ -103,7 +103,7 @@ void ir_reciever_init(void){
   RCC ->APB2ENR |= (1UL << 8);
 
   /*Conversion sequence start ADC1*/
-  ADC1 ->SQR3 = ADC_CH4;
+  ADC1 ->SQR3 = ADC_CH5;
 
   /*Conversion sequence length*/
   ADC1 ->SQR1 = (0x00 << 20);
@@ -113,7 +113,7 @@ void ir_reciever_init(void){
   
 }
 
-void ir_start_conversion(void){
+void ir_start_conversionc(void){
   /*Enable continuous conversion mode*/
   ADC1 -> CR2 |= CR2_CONT;
 
@@ -122,7 +122,7 @@ void ir_start_conversion(void){
 
 }
 
-uint32_t ir_sensor_value_read(void){
+uint32_t ir_sensor_value_readc(void){
   /*Wait for conversion to be completed*/
   while(!(ADC1 ->SR & SR_EOC)){}
 

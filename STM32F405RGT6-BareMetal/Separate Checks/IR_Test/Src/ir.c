@@ -112,7 +112,7 @@ void ir_reciever_init(void){
   RCC ->APB2ENR |= (3UL << 8);
 
   /*Select multi ADC mode as regular simultaneous mode*/
-  //ADC ->CCR|= (6UL << 0);
+  ADC ->CCR|= (3UL << 16);
 
   /*Conversion sequence start ADC1*/
   ADC1 ->SQR3 = ADC_CH8 | (ADC_CH9 << 5);
@@ -146,7 +146,7 @@ uint32_t ir_sensor_value_read(void){
   while(!(ADC ->CSR & CSR_EOC)){}
 
   /*Return the value of the conversion*/
-  uint32_t value = ADC -> CDR;
-  return value;
+  return ADC -> CDR;
+
 }
 
