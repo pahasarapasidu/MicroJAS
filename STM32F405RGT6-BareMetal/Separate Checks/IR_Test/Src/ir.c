@@ -41,7 +41,7 @@
 #define CSR_EOC    (514UL << 1)
 
 
-void ir_led_turn_on(char ir_led){
+void ir_led_turn_on(int ir_led){
   switch(ir_led){
     case 1:
       /*Enable clock for Port C*/
