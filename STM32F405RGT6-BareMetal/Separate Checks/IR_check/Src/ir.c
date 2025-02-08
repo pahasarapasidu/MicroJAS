@@ -80,8 +80,25 @@ void ir_led_turn_off(int led){
 }
 
 void ir_reciever_init(void){
-  /*Enable clock access for port C*/
-  
+  /*Enable clock access for port A*/
+  RCC ->AHB1ENR |= GPIOAEN;
+
+  /*Set the mode register A to analog mode, pin 4 and 5*/
+  GPIOA ->MODER |= (3UL << 8);
+  GPIOA ->MODER |= (3UL << 10);
+
+  /*Enable clock access for port B */
+  RCC ->AHB1ENR |= GPIOBEN;
+
+  /*Set the mode register B to analog mode, pin 0 and 1*/
+  GPIOB ->MODER |= (3UL << 0);
+  GPIOB ->MODER |= (3UL << 2);
+
+  /***Configure ADC module ***/
+
+  /*Enable clock access for ADC1, ADC2*/
+  RCC ->APB2ENR |= (3UL << 8);
+
 
 }
 
