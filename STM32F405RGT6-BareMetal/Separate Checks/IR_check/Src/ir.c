@@ -4,6 +4,8 @@
 
 #include "stm32f4xx.h"       //Include the STM32F4xx header file(Standard peripheral library)
 #include "stm32f405xx.h"     //Include the STM32F411xx header file(Standard peripheral library)
+#include <stdio.h>
+#include <stdint.h>
 
 
 #define GPIOAEN          (1UL << 0)    //0b 0000 0000 0000 0000 0000 0000 0000 0001
@@ -41,7 +43,7 @@
 #define CSR_EOC    (514UL << 1)
 
 
-void ir_led_turn_on(char ir_led){
+void ir_led_turn_on(int ir_led){
   switch(ir_led){
     case 1:
       /*Enable clock for Port C*/
