@@ -6,6 +6,7 @@
 #define CR1_TE      (1UL << 3)
 #define CR1_RE      (1UL << 2)
 #define SR_RXNE     (1UL << 5)
+#define SR_TXE      (1UL << 7)
 
 #define CR1_UE      (1UL << 13)
 
@@ -81,6 +82,18 @@ char uart3_read(void)
 
   /*Read Data*/
   return USART3 ->DR;
+}
+
+void uart3_write(int ch)
+{
+    /*****Write Data to transmit*****/
+
+  /*Make sure the transmit data register is empty*/
+	while(!(USART3 ->SR & SR_TXE)){}
+
+  /*Write to transmit data register*/ 
+    USART3 ->DR = (ch & 0xFF);
+
 }
 
 static void uart_set_baudrate(USART_TypeDef *USARTx, uint32_t PeriphClk, uint32_t BaudRate)
