@@ -5,6 +5,7 @@
 
 #define CR1_TE      (1UL << 3)
 #define CR1_RE      (1UL << 2)
+#define SR_RXNE     (1UL << 5)
 
 #define CR1_UE      (1UL << 13)
 
@@ -18,6 +19,13 @@
 static void uart_set_baudrate(USART_TypeDef *USARTx, uint32_t PeriphClk, uint32_t Baudrate);
 static uint16_t compute_uart_bd(uint32_t PeriphClk, uint32_t Baudrate);
 
+char uart3_read(void);
+
+int __io_putchar(int ch)
+{
+  uart3_write(ch);
+  return ch;
+}
 
 void pc10_af_uart_tx_mode(void){
 
@@ -64,6 +72,15 @@ void uart_init(void){
 
     /*Enable USART3*/
     USART3->CR1 |= CR1_UE;
+}
+
+char uart3_read(void)
+{
+  /*Make sure the receive data register is not empty*/
+  while(!(USART3 ->SR & SR_RXNE)){}
+
+  /*Read Data*/
+  return USART3 ->DR;
 }
 
 static void uart_set_baudrate(USART_TypeDef *USARTx, uint32_t PeriphClk, uint32_t BaudRate)
