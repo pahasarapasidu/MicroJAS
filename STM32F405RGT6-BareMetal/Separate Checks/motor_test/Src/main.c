@@ -2,99 +2,163 @@
 #include <stdint.h> //Include the standard integer header file
 #include "stm32f4xx.h"
 #include "stm32f405xx.h"//Include the STM32F411 header file(Standard peripheral library)
-/* ---------- USER-TUNABLE SECTION -------------------------------- */
-#define SYS_CORE_CLK_HZ   168000000U   /* CPU frequency         */
-#define APB1_PRESCALE     4U          /* as set in RCC_CFGR     */
-#define TIM4CLK_HZ        ( (APB1_PRESCALE == 1U) ? \
-                            (SYS_CORE_CLK_HZ / APB1_PRESCALE) : \
-                            (SYS_CORE_CLK_HZ / APB1_PRESCALE * 2U) )
-#define PWM_FREQ_HZ       20000U      /* Target PWM frequency   */
 
-/* Derive PSC & ARR so that TIM4CLK/(PSC+1)/(ARR+1) = PWM_FREQ_HZ */
-#define TIM4_PSC          ( (TIM4CLK_HZ / 1000000U) - 1U )  /* 1 MHz timer tick */
-#define TIM4_ARR          ( (1000000U / PWM_FREQ_HZ) - 1U ) /* Period ticks     */
+/******************************************************************
+ * STM32F405RGT6 → TB6612FNG Dual Motor Driver Control via PWM
+ * Motor A: PB8 (PWM), PB4 (AIN1), PB5 (AIN2)
+ * Motor B: PB9 (PWM), PB6 (BIN1), PB7 (BIN2)
+ * PWM Freq: 20 kHz using TIM4 CH3 & CH4
+ ******************************************************************/
 
-/* Safety clamping macro */
-#define CLAMP_100(x)      ( (x) > 100 ? 100 : (x) )
+#define PWM_FREQ_HZ   20000U         // Target PWM frequency
+#define SYSCLK_HZ     168000000U     // MCU clock (via PLL)
+#define APB1_PRESCALER 4U            // From STM32F4 clock tree
+#define TIMCLK_HZ    ((APB1_PRESCALER == 1) ? (SYSCLK_HZ) : (SYSCLK_HZ / APB1_PRESCALER * 2))
 
-/* ---------- PROTOTYPES ----------------------------------------- */
-static void clock_init(void);
-static void gpio_init(void);
-static void tim4_pwm_init(void);
-void        pwm_set_duty(uint8_t duty_pc, uint8_t channel);
+#define TIM4_PSC ((TIMCLK_HZ / 1000000U) - 1)        // 1 MHz time base
+#define TIM4_ARR ((1000000U / PWM_FREQ_HZ) - 1)      // Auto-reload for target frequency
 
-/* ---------------- MAIN ----------------------------------------- */
+#define CLAMP_100(x) ((x) > 100 ? 100 : (x))
+
+/*** Initialization Prototypes ***/
+void clock_init(void);
+void gpio_init(void);
+void tim4_pwm_init(void);
+
+/*** Motor Control Functions ***/
+void motorA_forward(uint8_t duty);
+void motorA_reverse(uint8_t duty);
+void motorA_stop(void);
+
+void motorB_forward(uint8_t duty);
+void motorB_reverse(uint8_t duty);
+void motorB_stop(void);
+
+
 int main(void)
 {
-    clock_init();      /* Enable GPIOB + TIM4 interface clocks   */
-    gpio_init();       /* Put PB8, PB9 into AF2-PWM high-speed PP */
-    tim4_pwm_init();   /* 20 kHz PWM on CH3 & CH4                */
+    clock_init();
+    gpio_init();
+    tim4_pwm_init();
 
-    /* Soft-start ramp demo: 0 → 100 % duty, both motors equal     */
-    for (uint8_t d = 0; d <= 100; d++) {
-        pwm_set_duty(d, 3);           /* CH3 = PB8 */
-        pwm_set_duty(d, 4);           /* CH4 = PB9 */
-        for (volatile uint32_t i = 0; i < 20000; i++) ; /* ~2 ms delay */
-    }
+    // Test Motors: A forward, B reverse at 50% speed
+    motorA_forward(50);
+    motorB_reverse(50);
+
     while (1) {
-        /* Place runtime duty updates here—for example from ADC, USART, etc. */
+        // Add debounce, UART, or input sensing here
     }
 }
 
-/* ------------ Helper Functions --------------------------------- */
-static void clock_init(void)
+
+/* --- Enable Clocks to GPIOB and TIM4 --- */
+void clock_init(void)
 {
-    /* 1. Gate clocks to GPIOB + TIM4 */
-    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;    /* Enable Port B clock  */
-    RCC->APB1ENR |= RCC_APB1ENR_TIM4EN;     /* Enable TIM4 clock    */
-    /* Delay after enabling clocks (RM0090 erratum)[14] */
-    __DSB();
+    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;
+    RCC->APB1ENR |= RCC_APB1ENR_TIM4EN;
+    __DSB(); // ensure peripheral ready
 }
 
-static void gpio_init(void)
+
+/* --- Set GPIO Modes --- */
+void gpio_init(void)
 {
-    /* PB8, PB9  → Alternate-function (10b) */
-    GPIOB->MODER  &= ~((3U << (8 * 2)) | (3U << (9 * 2)));
-    GPIOB->MODER  |=  (2U << (8 * 2)) | (2U << (9 * 2));
+    // Set PB4–PB7 as general-purpose output
+    GPIOB->MODER &= ~(
+        (3U << (4*2)) | (3U << (5*2)) | 
+        (3U << (6*2)) | (3U << (7*2))
+    );
+    GPIOB->MODER |= (
+        (1U << (4*2)) | (1U << (5*2)) | 
+        (1U << (6*2)) | (1U << (7*2))
+    );
+    GPIOB->OTYPER &= ~(
+        (1U << 4) | (1U << 5) | (1U << 6) | (1U << 7)
+    );
+    GPIOB->OSPEEDR |= (
+        (3U << (4*2)) | (3U << (5*2)) |
+        (3U << (6*2)) | (3U << (7*2))
+    );
 
-    /* Push-pull, high speed, no pull-ups */
-    GPIOB->OTYPER &= ~((1U << 8) | (1U << 9));
-    GPIOB->OSPEEDR |= (3U << (8 * 2)) | (3U << (9 * 2));
-    GPIOB->PUPDR  &= ~((3U << (8 * 2)) | (3U << (9 * 2)));
-
-    /* AFRH bits: PB8/PB9 occupy nibbles 0 & 1; AF2 = 0b0010 */
-    GPIOB->AFR[1] &= ~(0xF << 0 | 0xF << 4);
-    GPIOB->AFR[1] |=  (2U << 0) | (2U << 4);
+    // Set PB8, PB9 as alternate function (AF2 = TIM4)
+    GPIOB->MODER &= ~((3U << (8*2)) | (3U << (9*2)));
+    GPIOB->MODER |=  ((2U << (8*2)) | (2U << (9*2)));
+    GPIOB->AFR[1] &= ~((0xF << 0) | (0xF << 4));   // AFRH: PB8, PB9
+    GPIOB->AFR[1] |=  ((2U << 0) | (2U << 4));
 }
 
-static void tim4_pwm_init(void)
+
+/* --- Setup TIM4 for PWM on CH3 → PB8, CH4 → PB9 --- */
+void tim4_pwm_init(void)
 {
-    /* 2. Prescaler + period */
     TIM4->PSC = TIM4_PSC;
     TIM4->ARR = TIM4_ARR;
 
-    /* 3. PWM-mode 1 on channels 3 & 4, preload enable */
-    TIM4->CCMR2 &= ~(TIM_CCMR2_OC3M | TIM_CCMR2_OC4M |
-                     TIM_CCMR2_OC3PE | TIM_CCMR2_OC4PE);
-    TIM4->CCMR2 |=  (6U << TIM_CCMR2_OC3M_Pos) |   /* 110 = PWM mode 1 */
-                    (6U << TIM_CCMR2_OC4M_Pos) |
-                    TIM_CCMR2_OC3PE | TIM_CCMR2_OC4PE;
+    TIM4->CCMR2 &= ~(
+        TIM_CCMR2_OC3M | TIM_CCMR2_OC4M | 
+        TIM_CCMR2_OC3PE | TIM_CCMR2_OC4PE
+    );
+    TIM4->CCMR2 |=
+        (6U << TIM_CCMR2_OC3M_Pos) | TIM_CCMR2_OC3PE |
+        (6U << TIM_CCMR2_OC4M_Pos) | TIM_CCMR2_OC4PE;
 
-    /* 4. Enable outputs, active-high polarity */
     TIM4->CCER &= ~(TIM_CCER_CC3P | TIM_CCER_CC4P);
     TIM4->CCER |=  TIM_CCER_CC3E | TIM_CCER_CC4E;
 
-    /* 5. Zero duty at startup */
-    TIM4->CCR3 = 0;
-    TIM4->CCR4 = 0;
+    TIM4->CCR3 = 0; // Motor A
+    TIM4->CCR4 = 0; // Motor B
 
-    /* 6. Auto-reload preload ON, counter enable */
-    TIM4->CR1  |= TIM_CR1_ARPE | TIM_CR1_CEN;
+    TIM4->CR1 |= TIM_CR1_ARPE | TIM_CR1_CEN;
 }
 
-void pwm_set_duty(uint8_t duty_pc, uint8_t channel)
+
+/* --- Motor A Control Functions --- */
+void motorA_forward(uint8_t duty)
 {
-    uint32_t ticks = ( (uint32_t)CLAMP_100(duty_pc) * (TIM4_ARR + 1U) ) / 100U;
-    if (channel == 3)      TIM4->CCR3 = ticks;
-    else if (channel == 4) TIM4->CCR4 = ticks;
+    duty = CLAMP_100(duty);
+    TIM4->CCR3 = ((TIM4->ARR + 1) * duty) / 100;
+
+    GPIOB->BSRR = (1U << 4);   // AIN1 = 1
+    GPIOB->BSRR = (1U << (5 + 16)); // AIN2 = 0
+}
+
+void motorA_reverse(uint8_t duty)
+{
+    duty = CLAMP_100(duty);
+    TIM4->CCR3 = ((TIM4->ARR + 1) * duty) / 100;
+
+    GPIOB->BSRR = (1U << 5);   // AIN2 = 1
+    GPIOB->BSRR = (1U << (4 + 16)); // AIN1 = 0
+}
+
+void motorA_stop(void)
+{
+    TIM4->CCR3 = 0;
+    GPIOB->BSRR = (1U << (4 + 16)) | (1U << (5 + 16)); // AIN1 & AIN2 = 0
+}
+
+
+/* --- Motor B Control Functions --- */
+void motorB_forward(uint8_t duty)
+{
+    duty = CLAMP_100(duty);
+    TIM4->CCR4 = ((TIM4->ARR + 1) * duty) / 100;
+
+    GPIOB->BSRR = (1U << 6);   // BIN1 = 1
+    GPIOB->BSRR = (1U << (7 + 16)); // BIN2 = 0
+}
+
+void motorB_reverse(uint8_t duty)
+{
+    duty = CLAMP_100(duty);
+    TIM4->CCR4 = ((TIM4->ARR + 1) * duty) / 100;
+
+    GPIOB->BSRR = (1U << 7);   // BIN2 = 1
+    GPIOB->BSRR = (1U << (6 + 16)); // BIN1 = 0
+}
+
+void motorB_stop(void)
+{
+    TIM4->CCR4 = 0;
+    GPIOB->BSRR = (1U << (6 + 16)) | (1U << (7 + 16)); // BIN1 & BIN2 = 0
 }
