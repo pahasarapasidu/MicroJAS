@@ -20,6 +20,7 @@ int main(void)
     tim4_pwm_init();
     encoder_gpio_init();
     encoder_timer_init();
+    uart3_init();
 
     // Optionally preload counters to zero
     TIM2->CNT = 0;
@@ -30,8 +31,8 @@ int main(void)
     left_last  = TIM5->CNT;
 
     // Test Motors: A forward, B reverse at 50% speed
-    motorA_forward(50);
-    motorB_reverse(50);
+//    motorA_reverse(50);
+//    motorB_forward(50);
 
     while (1) {
         // Right Encoder (TIM2 is 16-bit signed)

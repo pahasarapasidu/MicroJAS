@@ -14,8 +14,8 @@
 #include "stm32f405xx.h"//Include the STM32F411 header file(Standard peripheral library)
 
 /* Initialize clocks, GPIOs for Encoder inputs */
-static void encoder_gpio_init(void);
-static void encoder_timer_init(void);
+void encoder_gpio_init(void);
+void encoder_timer_init(void);
 
 
 #endif /* ENCODER_H_ */

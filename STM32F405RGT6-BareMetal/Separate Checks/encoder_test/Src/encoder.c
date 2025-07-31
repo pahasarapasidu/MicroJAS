@@ -1,7 +1,7 @@
 #include "encoder.h"
 
 /* --- GPIOA Setup: PA0-PA3 as alternate function, no pull --- */
-static void encoder_gpio_init(void)
+void encoder_gpio_init(void)
 {
     RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN; // Enable Port A clock
 
@@ -18,7 +18,7 @@ static void encoder_gpio_init(void)
 }
 
 /* --- TIM2 (Right) and TIM5 (Left) in Encoder Mode --- */
-static void encoder_timer_init(void)
+void encoder_timer_init(void)
 {
     // Enable TIM2 and TIM5 clocks
     RCC->APB1ENR |= RCC_APB1ENR_TIM2EN | RCC_APB1ENR_TIM5EN;
