@@ -27,7 +27,14 @@ int main(void)
     
     encoder_gpio_exti_init();
     
-    
+    clock_init();
+    gpio_init();
+    tim4_pwm_init();
+
+    // Test Motors: A forward, B reverse at 50% speed
+    motorA_forward(50);
+    motorB_forward(50);
+
     
     while (1)
     {
