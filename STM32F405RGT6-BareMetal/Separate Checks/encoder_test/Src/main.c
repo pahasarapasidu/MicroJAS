@@ -5,6 +5,7 @@
 #include "systick.h"
 #include "motor.h"
 #include "encoder.h"
+#include "dip.h"
 
 // Variables for encoder positions
 // volatile int16_t right_last = 0;       // For TIM2 16-bit counter wrap handling
@@ -31,14 +32,18 @@ int main(void)
     gpio_init();
     tim4_pwm_init();
 
+    dip_gpio_init();
+
     // Test Motors: A forward, B reverse at 50% speed
-    motorA_forward(50);
-    motorB_forward(50);
+    motorA_forward(20);
+    motorB_forward(20);
 
     
     while (1)
     {
-        
+    	//uint8_t dip = read_dip_switches();
+
+
         // Print accumulated encoder positions via UART
         printf("Right Pos: %ld, Left Pos: %ld\r\n", encoderA_pos, encoderB_pos);
 
