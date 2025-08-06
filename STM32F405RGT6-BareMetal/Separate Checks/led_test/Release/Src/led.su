@@ -1,0 +1,2 @@
+../Src/led.c:41:6:turn_on_led	0	static
+../Src/led.c:127:6:turn_off_led	0	static
